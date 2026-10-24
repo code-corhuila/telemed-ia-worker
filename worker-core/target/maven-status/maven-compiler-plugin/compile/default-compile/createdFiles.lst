@@ -1,0 +1,4 @@
+co/edu/corhuila/telemed/worker/application/port/out/DocumentClientPort.class
+co/edu/corhuila/telemed/worker/application/port/in/EventPayload.class
+co/edu/corhuila/telemed/worker/application/port/out/TokenProviderPort.class
+co/edu/corhuila/telemed/worker/application/usecase/ProcessSummaryUseCase.class
