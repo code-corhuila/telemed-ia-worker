@@ -1,4 +1,0 @@
-co/edu/corhuila/telemed/worker/adapter/out/document/DocumentClient.class
-co/edu/corhuila/telemed/worker/adapter/out/identity/IdentityClient.class
-co/edu/corhuila/telemed/worker/adapter/in/rabbitmq/RabbitMQConsumer.class
-co/edu/corhuila/telemed/worker/adapter/out/identity/IdentityClient$TokenResponse.class

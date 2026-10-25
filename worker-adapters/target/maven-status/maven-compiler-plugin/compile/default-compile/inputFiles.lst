@@ -1,3 +1,0 @@
-/app/worker-adapters/src/main/java/co/edu/corhuila/telemed/worker/adapter/in/rabbitmq/RabbitMQConsumer.java
-/app/worker-adapters/src/main/java/co/edu/corhuila/telemed/worker/adapter/out/document/DocumentClient.java
-/app/worker-adapters/src/main/java/co/edu/corhuila/telemed/worker/adapter/out/identity/IdentityClient.java

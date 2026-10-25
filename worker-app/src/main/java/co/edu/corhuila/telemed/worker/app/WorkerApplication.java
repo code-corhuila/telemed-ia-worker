@@ -1,6 +1,7 @@
 package co.edu.corhuila.telemed.worker.app;
 
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,14 @@ public class WorkerApplication {
     // Declarar la cola para que Spring la cree si no existe
     @Bean
     public Queue summaryQueue() {
-        return new Queue("post_consultation_summary_generated", true);
+        return QueueBuilder.durable("post_consultation_summary_generated")
+                .withArgument("x-dead-letter-exchange", "")
+                .withArgument("x-dead-letter-routing-key", "post_consultation_summary_generated.dlq")
+                .build();
+    }
+
+    @Bean
+    public Queue deadLetterQueue() {
+        return QueueBuilder.durable("post_consultation_summary_generated.dlq").build();
     }
 }
