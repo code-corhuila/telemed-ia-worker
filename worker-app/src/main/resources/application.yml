@@ -18,8 +18,8 @@ spring:
 
 worker:
   identity:
-    client-id: ${SERVICE_CLIENT_ID:worker}
-    client-secret: ${SERVICE_CLIENT_SECRET:secret}
+    client-id: ${SERVICE_CLIENT_ID}
+    client-secret: ${SERVICE_CLIENT_SECRET}
     url: ${IDENTITY_URL:http://localhost:8081}
   document:
     url: ${DOCUMENT_API_URL:http://localhost:8080}
