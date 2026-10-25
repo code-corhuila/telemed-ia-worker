@@ -9,10 +9,17 @@ spring:
     listener:
       simple:
         acknowledge-mode: auto
-        default-requeue-rejected: false # Evita bucles infinitos si hay errores 400
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-attempts: 3
+          multiplier: 2.0
 
 worker:
   identity:
+    client-id: ${SERVICE_CLIENT_ID:worker}
+    client-secret: ${SERVICE_CLIENT_SECRET:secret}
     url: ${IDENTITY_URL:http://localhost:8081}
   document:
     url: ${DOCUMENT_API_URL:http://localhost:8080}

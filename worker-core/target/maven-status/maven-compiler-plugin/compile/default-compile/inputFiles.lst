@@ -1,4 +1,0 @@
-/app/worker-core/src/main/java/co/edu/corhuila/telemed/worker/application/port/in/EventPayload.java
-/app/worker-core/src/main/java/co/edu/corhuila/telemed/worker/application/port/out/DocumentClientPort.java
-/app/worker-core/src/main/java/co/edu/corhuila/telemed/worker/application/port/out/TokenProviderPort.java
-/app/worker-core/src/main/java/co/edu/corhuila/telemed/worker/application/usecase/ProcessSummaryUseCase.java

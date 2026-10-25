@@ -12,17 +12,23 @@ import java.util.Map;
 public class IdentityClient implements TokenProviderPort {
 
     private final RestClient restClient;
+    private final String clientId;
+    private final String clientSecret;
 
-    public IdentityClient(@Value("${worker.identity.url}") String identityUrl) {
+    public IdentityClient(@Value("${worker.identity.url}") String identityUrl,
+                          @Value("${worker.identity.client-id}") String clientId,
+                          @Value("${worker.identity.client-secret}") String clientSecret) {
         this.restClient = RestClient.builder().baseUrl(identityUrl).build();
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
     }
 
     @Override
     public String getServiceToken() {
         // TODO: En un entorno real, se debería cachear el token hasta que expire
         Map<String, String> request = Map.of(
-                "clientId", "worker",
-                "clientSecret", "secret" // En prod, esto viene de variables de entorno
+                "clientId", this.clientId,
+                "clientSecret", this.clientSecret // En prod, esto viene de variables de entorno
         );
 
         TokenResponse response = restClient.post()
