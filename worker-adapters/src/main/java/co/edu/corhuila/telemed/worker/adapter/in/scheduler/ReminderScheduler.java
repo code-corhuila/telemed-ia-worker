@@ -23,16 +23,21 @@ public class ReminderScheduler {
     public void checkUpcomingAppointments() {
         System.out.println("Checking upcoming appointments for reminders...");
         
-        // TODO: Conectar con Appointment API para leer citas reales.
-        // Por ahora, simulamos una cita a 24 horas.
-        simulateReminder("123e4567-e89b-12d3-a456-426614174000", "pat-123", "prof-456", "PT24H");
+        // Simulamos una cita real (UUIDs válidos para no ir a la DLQ)
+        String appointmentId = UUID.randomUUID().toString();
+        String patientId = UUID.randomUUID().toString();
+        String professionalId = UUID.randomUUID().toString();
+        
+        simulateReminder(appointmentId, patientId, professionalId, "PT24H");
     }
 
     private void simulateReminder(String appointmentId, String patientId, String professionalId, String offset) {
         try {
-            // eventId determinista para evitar duplicados
+            // eventId determinista (UUID válido)
             String eventId = UUID.nameUUIDFromBytes((appointmentId + offset).getBytes()).toString();
-            
+            // correlationId real para trazabilidad
+            String correlationId = UUID.randomUUID().toString();
+
             Map<String, Object> payload = Map.of(
                 "appointmentId", appointmentId,
                 "patientId", patientId,
@@ -45,7 +50,7 @@ public class ReminderScheduler {
                 "eventId", eventId,
                 "eventType", "AppointmentReminderDue",
                 "occurredAt", Instant.now().toString(),
-                "correlationId", "",
+                "correlationId", correlationId,
                 "version", 1,
                 "payload", payload
             );
@@ -55,6 +60,7 @@ public class ReminderScheduler {
             rabbitTemplate.convertAndSend("appointments.events", "appointment-reminder-due", json, message -> {
                 message.getMessageProperties().setMessageId(eventId);
                 message.getMessageProperties().setType("AppointmentReminderDue");
+                message.getMessageProperties().setCorrelationId(correlationId);
                 return message;
             });
 
