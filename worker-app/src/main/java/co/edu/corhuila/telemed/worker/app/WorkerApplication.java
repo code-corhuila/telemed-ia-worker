@@ -4,10 +4,12 @@ import org.springframework.amqp.core.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import co.edu.corhuila.telemed.worker.application.usecase.ProcessSummaryUseCase;
 import co.edu.corhuila.telemed.worker.application.port.out.DocumentClientPort;
 
 @SpringBootApplication(scanBasePackages = "co.edu.corhuila.telemed.worker")
+@EnableScheduling
 public class WorkerApplication {
 
     public static void main(String[] args) {
@@ -24,6 +26,11 @@ public class WorkerApplication {
     @Bean
     public TopicExchange consultationExchange() {
         return new TopicExchange("consultation.events");
+    }
+
+    @Bean
+    public TopicExchange appointmentsExchange() {
+        return new TopicExchange("appointments.events");
     }
 
     @Bean
