@@ -32,7 +32,7 @@ public class DocumentClient implements DocumentClientPort {
 
         try {
             restClient.post()
-                    .uri("/api/v1/documents/generate")
+                    .uri("/api/documents/generate")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .header("Idempotency-Key", idempotencyKey)
                     .contentType(MediaType.APPLICATION_JSON)
