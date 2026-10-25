@@ -12,6 +12,7 @@ services:
       SERVICE_CLIENT_SECRET: ${SERVICE_CLIENT_SECRET}
       IDENTITY_URL: http://identity-api:8081
       DOCUMENT_API_URL: http://document-generation-api:8080
+      APPOINTMENT_API_URL: http://appointment-scheduling-api:8080
     networks:
       - platform
     depends_on:
@@ -21,8 +22,8 @@ services:
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
     ports:
-      - "5672:5672"   # AMQP
-      - "15672:15672" # UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
