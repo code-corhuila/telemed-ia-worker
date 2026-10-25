@@ -7,6 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 import java.util.Map;
 
@@ -17,7 +20,15 @@ public class DocumentClient implements DocumentClientPort {
     private final TokenProviderPort tokenProvider;
 
     public DocumentClient(@Value("${worker.document.url}") String documentUrl, TokenProviderPort tokenProvider) {
-        this.restClient = RestClient.builder().baseUrl(documentUrl).build();
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+        requestFactory.setReadTimeout(Duration.ofSeconds(5));
+        this.restClient = RestClient.builder()
+                .baseUrl(documentUrl)
+                .requestFactory(requestFactory)
+                .build();
         this.tokenProvider = tokenProvider;
     }
 
