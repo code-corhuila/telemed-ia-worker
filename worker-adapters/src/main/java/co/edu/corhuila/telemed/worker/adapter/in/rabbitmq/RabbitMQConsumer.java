@@ -20,14 +20,19 @@ public class RabbitMQConsumer {
         this.objectMapper = objectMapper;
     }
 
-    @RabbitListener(queues = "post_consultation_summary_generated")
+    @RabbitListener(queues = "post-consultation-summary-queue")
     public void receiveMessage(Message message) {
         String eventId = message.getMessageProperties().getMessageId();
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
         
         try {
-            EventPayload payload = objectMapper.readValue(body, EventPayload.class);
-            useCase.process(eventId, payload);
+            // Extraer el payload interno del envoltorio ADR-011
+            com.fasterxml.jackson.databind.JsonNode rootNode = objectMapper.readTree(body);
+            String realEventId = rootNode.path("eventId").asText(eventId); // usa eventId del JSON o el de AMQP
+            com.fasterxml.jackson.databind.JsonNode innerPayload = rootNode.path("payload");
+            
+            EventPayload payload = objectMapper.treeToValue(innerPayload, EventPayload.class);
+            useCase.process(realEventId, payload);
             // Si no lanza excepción, Spring Boot hace el ACK automáticamente
         } catch (Exception e) {
             System.err.println("Error processing message " + eventId + ": " + e.getMessage());
