@@ -23,3 +23,5 @@ worker:
     url: ${IDENTITY_URL:http://localhost:8081}
   document:
     url: ${DOCUMENT_API_URL:http://localhost:8080}
+  appointment:
+    url: ${APPOINTMENT_API_URL:http://localhost:8080}
