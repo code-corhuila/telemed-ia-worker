@@ -3,12 +3,14 @@ package co.edu.corhuila.telemed.worker.adapter.in.scheduler;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
 @Component
+@ConditionalOnProperty(name = "worker.reminders.enabled", havingValue = "true", matchIfMissing = false)
 public class ReminderScheduler {
 
     private final RabbitTemplate rabbitTemplate;
