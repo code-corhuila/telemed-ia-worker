@@ -17,6 +17,8 @@ spring:
           multiplier: 2.0
 
 worker:
+  reminders:
+    enabled: ${REMINDERS_ENABLED:false}
   identity:
     client-id: ${SERVICE_CLIENT_ID}
     client-secret: ${SERVICE_CLIENT_SECRET}
