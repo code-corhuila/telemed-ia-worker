@@ -13,6 +13,14 @@
     <artifactId>worker-core</artifactId>
 
     <dependencies>
+        <!-- Logging API (no binding). The adapter/app modules provide the
+             actual slf4j binding via Spring Boot's starter. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
