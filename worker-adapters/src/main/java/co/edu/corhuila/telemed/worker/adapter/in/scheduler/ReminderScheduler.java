@@ -1,43 +1,77 @@
 package co.edu.corhuila.telemed.worker.adapter.in.scheduler;
 
+import co.edu.corhuila.telemed.worker.adapter.out.appointment.AppointmentClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class ReminderScheduler {
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
+    private final AppointmentClient appointmentClient;
 
-    public ReminderScheduler(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper) {
+    // Memoria en RAM para no enviar el mismo recordatorio dos veces
+    private final Set<String> sentEvents = ConcurrentHashMap.newKeySet();
+
+    public ReminderScheduler(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper, AppointmentClient appointmentClient) {
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
+        this.appointmentClient = appointmentClient;
     }
 
     @Scheduled(fixedDelay = 60000) // Ejecutar cada minuto
     public void checkUpcomingAppointments() {
         System.out.println("Checking upcoming appointments for reminders...");
         
-        // TODO: Conectar con Appointment API para leer citas reales.
-        // Por ahora, simulamos una cita a 24 horas.
-        simulateReminder("123e4567-e89b-12d3-a456-426614174000", "pat-123", "prof-456", "PT24H");
+        try {
+            JsonNode appointments = appointmentClient.getUpcomingReminders();
+            
+            if (appointments == null || !appointments.isArray()) {
+                System.out.println("No appointments to process or invalid response.");
+                return;
+            }
+
+            String jobCorrelationId = UUID.randomUUID().toString();
+
+            for (JsonNode appt : appointments) {
+                String appointmentId = appt.path("id").asText();
+                String patientId = appt.path("patientId").asText();
+                String professionalId = appt.path("professionalId").asText();
+                String startDateTime = appt.path("start").asText();
+                String offset = "PT24H";
+
+                String eventId = UUID.nameUUIDFromBytes((appointmentId + offset).getBytes()).toString();
+
+                if (sentEvents.contains(eventId)) {
+                    continue;
+                }
+
+                publishReminder(eventId, jobCorrelationId, appointmentId, patientId, professionalId, startDateTime, offset);
+                sentEvents.add(eventId);
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking upcoming appointments: " + e.getMessage());
+        }
     }
 
-    private void simulateReminder(String appointmentId, String patientId, String professionalId, String offset) {
+    private void publishReminder(String eventId, String correlationId, String appointmentId, 
+                                 String patientId, String professionalId, String startDateTime, String offset) {
         try {
-            // eventId determinista para evitar duplicados
-            String eventId = UUID.nameUUIDFromBytes((appointmentId + offset).getBytes()).toString();
-            
             Map<String, Object> payload = Map.of(
                 "appointmentId", appointmentId,
                 "patientId", patientId,
                 "professionalId", professionalId,
-                "startDateTime", Instant.now().plusSeconds(86400).toString(),
+                "startDateTime", startDateTime,
                 "reminderOffset", offset
             );
 
@@ -45,7 +79,7 @@ public class ReminderScheduler {
                 "eventId", eventId,
                 "eventType", "AppointmentReminderDue",
                 "occurredAt", Instant.now().toString(),
-                "correlationId", "",
+                "correlationId", correlationId,
                 "version", 1,
                 "payload", payload
             );
@@ -55,10 +89,11 @@ public class ReminderScheduler {
             rabbitTemplate.convertAndSend("appointments.events", "appointment-reminder-due", json, message -> {
                 message.getMessageProperties().setMessageId(eventId);
                 message.getMessageProperties().setType("AppointmentReminderDue");
+                message.getMessageProperties().setCorrelationId(correlationId);
                 return message;
             });
 
-            System.out.println("Published reminder: " + eventId);
+            System.out.println("Published real reminder for appointment: " + appointmentId);
         } catch (Exception e) {
             System.err.println("Failed to send reminder: " + e.getMessage());
         }
