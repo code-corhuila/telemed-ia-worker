@@ -1,0 +1,41 @@
+services:
+  worker:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+      SERVICE_CLIENT_ID: ${SERVICE_CLIENT_ID}
+      SERVICE_CLIENT_SECRET: ${SERVICE_CLIENT_SECRET}
+      IDENTITY_URL: http://identity-api:8081
+      DOCUMENT_API_URL: http://document-generation-api:8080
+      APPOINTMENT_API_URL: http://appointment-scheduling-api:8080
+    networks:
+      - platform
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - platform
+
+networks:
+  platform:
+    external: true

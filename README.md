@@ -1,25 +1,14 @@
 # telemed-ia-worker
 
-> Asynchronous jobs and background processing
+> Asynchronous jobs and background processing for TeleMed-IA
 
-Part of the **LMS Library** distributed system — team `lms-library`, Grupo 2.
-Governance and documentation live in [`library-docs`](https://github.com/code-corhuila/library-docs).
+Part of the **TeleMed-IA** distributed system — team `code-corhuila`, Grupo 2.
+Governance and documentation live in [`telemed-ia-docs`](https://github.com/code-corhuila/telemed-ia-docs).
+
+## Responsibilities
+- Consume `PostConsultationSummaryGenerated` from RabbitMQ.
+- Request a service token from `identity-and-access-api`.
+- Call `document-generation-api` to trigger PDF generation.
 
 ## Branching
-
-Three permanent branches. **None of them accepts a direct commit** — you enter through a child
-branch and leave through a Pull Request.
-
-```
-develop  <--PR--  feat/... fix/... chore/...
-qa       <--PR--  qa/...
-main     <--PR--  release/...  hotfix/...
-```
-
-Promotion happens **by re-application** (`git cherry-pick -x`), never by merging one permanent
-branch into another: `merge develop -> qa` and `merge qa -> main` do not exist in this model.
-
-`main` requires **1 approval from `ariel5253`**. On `develop` and `qa` the team sets its own review
-rule.
-
-Full policy: `00-governance/branching-policy.md` in `library-docs`.
+Three permanent branches. **None of them accepts a direct commit**.

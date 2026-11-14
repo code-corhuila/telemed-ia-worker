@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: telemed-ia-worker
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-attempts: 3
+          multiplier: 2.0
+
+worker:
+  reminders:
+    enabled: ${REMINDERS_ENABLED:false}
+  identity:
+    client-id: ${SERVICE_CLIENT_ID}
+    client-secret: ${SERVICE_CLIENT_SECRET}
+    url: ${IDENTITY_URL:http://localhost:8081}
+  document:
+    url: ${DOCUMENT_API_URL:http://localhost:8080}
+  appointment:
+    url: ${APPOINTMENT_API_URL:http://localhost:8080}
